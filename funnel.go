@@ -9,6 +9,7 @@ package funnel
 import (
 	"github.com/funnelorg/funnel/parse"
 	"github.com/funnelorg/funnel/run"
+	"github.com/funnelorg/funnel/runtime"
 )
 
 // Scope is the interface that defines the "scope" of a particular
@@ -22,5 +23,8 @@ type Scope interface {
 // for reporting errors.
 func Eval(s Scope, filename, code string) interface{} {
 	r := run.Runner{}
+	if s == nil {
+		s = runtime.DefaultScope
+	}
 	return r.Run(s, parse.Parse(filename, code))
 }

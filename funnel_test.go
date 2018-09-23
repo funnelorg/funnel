@@ -6,12 +6,14 @@ package funnel_test
 
 import (
 	"github.com/funnelorg/funnel"
+	"github.com/funnelorg/funnel/runtime"
 	"testing"
 )
 
 func TestSimple(t *testing.T) {
-	result := funnel.Eval(nil, "boo", "int(4)+int(2)")
-	if result != 6 {
+	result := funnel.Eval(nil, "boo", "num(4)+num(2)")
+	expected := runtime.Number{6.0}
+	if result != expected {
 		t.Error("unexpected result", result)
 	}
 }

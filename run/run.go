@@ -14,7 +14,13 @@ type Runner struct{}
 //
 // If the provided scope is nil, a default scope is used
 func (r *Runner) Run(s Scope, expr parse.Node) interface{} {
-	return unwrapValue(r.run(s, expr))
+	return unwrapValue(r.LazyRun(s, expr))
+}
+
+// LazyRun is like run but it can return "deferred" values which all
+// implement the Value() method.
+func (r *Runner) LazyRun(s Scope, expr parse.Node) interface{} {
+	return r.run(s, expr)
 }
 
 // runRaw only runs if the node is not a token. otherwise it returns
