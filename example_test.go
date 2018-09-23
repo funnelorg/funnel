@@ -31,3 +31,18 @@ func ExampleEval_defaultScope() {
 	// Output:
 	// {7}
 }
+
+func ExampleEval_functions() {
+	code := `
+{
+   fn = fun(x, y, x + y),
+   x = notused,
+   y = notused,
+   z = fn(num(5), num(10))
+}.z`
+
+	fmt.Println(Eval(nil, "myfile.go", code))
+
+	// Output:
+	// {15}
+}
