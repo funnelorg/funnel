@@ -22,9 +22,10 @@ func TestSuccess(t *testing.T) {
 	}
 
 	r := &run.Runner{}
+	s := &defaultScope{r}
 	for name, expected := range cases {
 		t.Run(name, func(t *testing.T) {
-			actual := r.Eval(nil, "code", name)
+			actual := r.Eval(s, "code", name)
 			if !reflect.DeepEqual(actual, expected) {
 				t.Error("Expected", expected, "got", actual)
 			}
@@ -50,9 +51,10 @@ func TestError(t *testing.T) {
 	}
 
 	r := &run.Runner{}
+	s := &defaultScope{r}
 	for name, expected := range cases {
 		t.Run(name, func(t *testing.T) {
-			actual := r.Eval(nil, "code", name)
+			actual := r.Eval(s, "code", name)
 			if err, ok := actual.(error); !ok {
 				t.Error("Unexpected successful result", actual)
 			} else if err.Error() != expected {

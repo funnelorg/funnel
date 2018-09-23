@@ -2,15 +2,16 @@
 // Use of this source code is governed by a MIT-style license
 // that can be found in the LICENSE file.
 
-package run
+package run_test
 
 import (
 	"github.com/funnelorg/funnel/parse"
+	"github.com/funnelorg/funnel/run"
 	"strconv"
 )
 
 type defaultScope struct {
-	*Runner
+	*run.Runner
 }
 
 func (d defaultScope) Value() interface{} {
@@ -29,60 +30,69 @@ func (d defaultScope) Get(key interface{}) interface{} {
 		return d.sumf
 	}
 	if s, ok := key.(string); ok {
-		return E("unknown identifier: " + s)
+		return run.E("unknown identifier: " + s)
 	}
-	return E("unknown identifier")
+	return run.E("unknown identifier")
 }
 
-func (d defaultScope) runArgs(s Scope, args []parse.Node) []interface{} {
+func (d defaultScope) runArgs(s run.Scope, args []parse.Node) []interface{} {
 	result := make([]interface{}, len(args))
 	for kk := range args {
-		result[kk] = d.run(s, args[kk])
+		result[kk] = d.LazyRun(s, args[kk])
 	}
 	return result
 }
 
-func (d defaultScope) runRawArgs(s Scope, args []parse.Node) []interface{} {
+func (d defaultScope) runRawArgs(s run.Scope, args []parse.Node) []interface{} {
 	result := make([]interface{}, len(args))
 	for kk := range args {
-		result[kk] = d.runRaw(s, args[kk])
+		if args[kk].Token != nil {
+			result[kk] = args[kk].Token.S
+		} else {
+			result[kk] = d.LazyRun(s, args[kk])
+		}
 	}
 	return result
 }
 
-func (d defaultScope) errorf(s Scope, args []parse.Node) interface{} {
+func (d defaultScope) errorf(s run.Scope, args []parse.Node) interface{} {
 	params := d.runRawArgs(s, args)
 	if len(params) > 0 {
 		switch s := params[0].(type) {
 		case string:
-			return E(s)
+			return run.E(s)
 		case error:
 			return s
 		}
 	}
-	return ErrUnknown
+	return run.ErrUnknown
 }
 
-func (d defaultScope) dotf(s Scope, args []parse.Node) interface{} {
-	result := d.run(s, args[0])
+func (d defaultScope) dotf(s run.Scope, args []parse.Node) interface{} {
+	result := d.LazyRun(s, args[0])
 	for _, next := range d.runRawArgs(s, args[1:]) {
 		switch sx := result.(type) {
-		case Scope:
+		case run.Scope:
 			result = sx.Get(next)
 		case error:
 			return sx
 		default:
-			return E("cannot use dot with non-map")
+			return run.E("cannot use dot with non-map")
 		}
 	}
 	return result
 }
 
-func (d defaultScope) intf(s Scope, args []parse.Node) interface{} {
+func (d defaultScope) intf(s run.Scope, args []parse.Node) interface{} {
 	if len(args) != 1 {
-		return E("int expects a single arg")
+		return run.E("int expects a single arg")
 	}
-	result := d.runRaw(s, args[0])
+	var result interface{}
+	if args[0].Token != nil {
+		result = args[0].Token.S
+	} else {
+		result = d.Run(s, args[0])
+	}
 	switch result := result.(type) {
 	case string:
 		v, err := strconv.Atoi(result)
@@ -93,10 +103,10 @@ func (d defaultScope) intf(s Scope, args []parse.Node) interface{} {
 	case int, error:
 		return result
 	}
-	return E("int: unknown argument type")
+	return run.E("int: unknown argument type")
 }
 
-func (d defaultScope) sumf(s Scope, args []parse.Node) interface{} {
+func (d defaultScope) sumf(s run.Scope, args []parse.Node) interface{} {
 	sum := 0
 	for _, v := range d.runArgs(s, args) {
 		switch v := v.(type) {
@@ -105,7 +115,7 @@ func (d defaultScope) sumf(s Scope, args []parse.Node) interface{} {
 		case error:
 			return v
 		default:
-			return E("sum: only works with ints")
+			return run.E("sum: only works with ints")
 		}
 	}
 	return sum
