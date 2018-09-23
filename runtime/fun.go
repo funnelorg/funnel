@@ -54,7 +54,3 @@ func (i invocation) Get(key interface{}) interface{} {
 	}
 	return i.s.Get(key)
 }
-
-func (i invocation) Value() interface{} {
-	return nil
-}

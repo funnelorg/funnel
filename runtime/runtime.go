@@ -68,10 +68,6 @@ func (r *rtscope) Get(key interface{}) interface{} {
 	return r.base.Get(key)
 }
 
-func (r *rtscope) Value() interface{} {
-	return r.m
-}
-
 var def = map[interface{}]interface{}{
 	"!":   Error,
 	".":   Dot,
@@ -87,8 +83,4 @@ type empty struct{}
 
 func (e empty) Get(key interface{}) interface{} {
 	return errors.New("no such key")
-}
-
-func (e empty) Value() interface{} {
-	return nil
 }
