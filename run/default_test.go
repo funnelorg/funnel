@@ -28,6 +28,8 @@ func (d defaultScope) Get(key interface{}) interface{} {
 		return d.intf
 	case "+":
 		return d.sumf
+	case "string":
+		return d.stringf
 	}
 	if s, ok := key.(string); ok {
 		return run.E("unknown identifier: " + s)
@@ -119,4 +121,8 @@ func (d defaultScope) sumf(s run.Scope, args []parse.Node) interface{} {
 		}
 	}
 	return sum
+}
+
+func (d defaultScope) stringf(s run.Scope, args []parse.Node) interface{} {
+	return args[0].Token.S
 }

@@ -9,6 +9,10 @@ import "github.com/funnelorg/funnel/parse"
 // Scope defines the interface for map-like objects.
 type Scope interface {
 	Get(key interface{}) interface{}
+}
+
+// Lazy defines a value that is "deferred"
+type Lazy interface {
 	Value() interface{}
 }
 
@@ -75,7 +79,7 @@ func (ms *mapScope) getKeys() map[interface{}]int {
 
 func unwrapValue(v interface{}) interface{} {
 	switch v := v.(type) {
-	case Scope:
+	case Lazy:
 		return unwrapValue(v.Value())
 	case map[interface{}]interface{}:
 		result := map[interface{}]interface{}{}

@@ -19,6 +19,7 @@ func TestSuccess(t *testing.T) {
 		"{x = int(4)}":                     map[interface{}]interface{}{"x": 4},
 		"{x = int(4), y = x+int(2)}.y":     6,
 		"{x = int(2), y = x + x, z = 3}.y": 4,
+		"{string(x) = int(5)}.x":           5,
 	}
 
 	r := &run.Runner{}

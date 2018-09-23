@@ -35,7 +35,6 @@ import (
 // evaluation. This is a key-value store of the global identifiers
 type Scope interface {
 	Get(key interface{}) interface{}
-	Value() interface{}
 }
 
 // Eval evaluates code using the provided scope. The filename is used
