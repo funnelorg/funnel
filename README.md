@@ -38,11 +38,16 @@ There are no built-in types of any sort -- all types and value
 composition are done via functions.  For instance, `num(5)` converts
 the parameter by interpreting its argument as an number.
 
+## Playground
+
+There is a [playground](https://funnelorg.github.io/playground/) for
+running the funnel interpreter.
+
 ## Vision
 
 The main goal of the project is to play around with different type
 systems and reactive approaches.  In particular, the short term goal
 is to figure out how to integrate this with the
-[https://github.com/dotchain/dot] project (which provides data
+[project](https://github.com/dotchain/dot) (which provides data
 synchronization support but also the general mutability mechanism)
 

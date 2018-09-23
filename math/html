@@ -1,0 +1,22 @@
+mode: set
+github.com/funnelorg/funnel/math/math.go:19.22,25.2 2 1
+github.com/funnelorg/funnel/math/math.go:28.57,29.20 1 1
+github.com/funnelorg/funnel/math/math.go:33.2,34.28 2 1
+github.com/funnelorg/funnel/math/math.go:48.2,48.43 1 1
+github.com/funnelorg/funnel/math/math.go:29.20,31.3 1 1
+github.com/funnelorg/funnel/math/math.go:35.15,36.31 1 1
+github.com/funnelorg/funnel/math/math.go:37.22,38.35 1 1
+github.com/funnelorg/funnel/math/math.go:39.13,40.27 1 1
+github.com/funnelorg/funnel/math/math.go:46.3,46.16 1 1
+github.com/funnelorg/funnel/math/math.go:40.27,42.18 2 1
+github.com/funnelorg/funnel/math/math.go:42.18,44.5 1 1
+github.com/funnelorg/funnel/math/math.go:52.55,53.20 1 1
+github.com/funnelorg/funnel/math/math.go:57.2,58.28 2 1
+github.com/funnelorg/funnel/math/math.go:72.2,72.41 1 1
+github.com/funnelorg/funnel/math/math.go:53.20,55.3 1 1
+github.com/funnelorg/funnel/math/math.go:59.15,60.38 1 1
+github.com/funnelorg/funnel/math/math.go:61.22,62.40 1 1
+github.com/funnelorg/funnel/math/math.go:63.13,64.27 1 1
+github.com/funnelorg/funnel/math/math.go:70.3,70.16 1 1
+github.com/funnelorg/funnel/math/math.go:64.27,66.18 2 1
+github.com/funnelorg/funnel/math/math.go:66.18,68.5 1 1

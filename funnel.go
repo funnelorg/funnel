@@ -10,7 +10,7 @@
 //     x + 2
 //     (2*x + 5)*y
 //
-// It also has functions and a dot notation:
+// It has functions and a dot notation:
 //
 //     math.square(x)
 //
@@ -23,6 +23,9 @@
 // Functions can be defined via fun (which is just a regular function)
 //
 //    {f = fun(x, y, x+y), z = f(2, 3)}.z
+//
+// There is a playground to test out these functions:
+//   https://funnelorg.github.io/playground/
 package funnel
 
 import (
