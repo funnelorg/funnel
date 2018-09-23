@@ -11,8 +11,6 @@ import "github.com/funnelorg/funnel/parse"
 type Runner struct{}
 
 // Run evaluates a parsed expression
-//
-// If the provided scope is nil, a default scope is used
 func (r *Runner) Run(s Scope, expr parse.Node) interface{} {
 	return unwrapValue(r.LazyRun(s, expr))
 }
@@ -33,10 +31,6 @@ func (r *Runner) runRaw(s Scope, expr parse.Node) interface{} {
 }
 
 func (r *Runner) run(s Scope, n parse.Node) interface{} {
-	if s == nil {
-		s = defaultScope{r}
-	}
-
 	switch {
 	case n.Token != nil:
 		return s.Get(n.Token.S)
