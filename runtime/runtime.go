@@ -77,6 +77,7 @@ var def = map[interface{}]interface{}{
 	".":   Dot,
 	"+":   Sum,
 	"num": Num,
+	"fun": Fun,
 }
 
 // DefaultScope defines the default runtime methods

@@ -166,3 +166,21 @@ func TestSum(t *testing.T) {
 		t.Error("unexpected result", x)
 	}
 }
+
+func TestFun(t *testing.T) {
+	s := runtime.DefaultScope
+	x := r.Eval(s, "code", "fun()()")
+	if x != nil {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "{x = fun(x, y, x + y), y = 42, z = x(num(2), num(3))}.z")
+	if x != (runtime.Number{5}) {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "fun(x+y,x+2y)")
+	if err, ok := x.(error); !ok || err.Error() != "fun: invalid param name" {
+		t.Error("unexpected result", x)
+	}
+}
