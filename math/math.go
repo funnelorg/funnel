@@ -21,7 +21,12 @@ func New() run.Scope {
 		"square": Square,
 		"root":   Root,
 	}
-	return runtime.NewScope(m, runtime.DefaultScope)
+
+	math := map[interface{}]interface{}{
+		"math": runtime.NewScope(m, runtime.DefaultScope),
+	}
+
+	return runtime.NewScope(math, runtime.DefaultScope)
 }
 
 // Square calculates the square of a number-like item
