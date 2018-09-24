@@ -30,34 +30,6 @@ var m = map[interface{}]interface{}{
 
 var r = &run.Runner{}
 
-func TestNewScope(t *testing.T) {
-	s := runtime.NewScope(m, runtime.DefaultScope)
-	x := r.Eval(s, "code", "f(x, y)")
-	if x != 11 {
-		t.Error("unexpected result", x)
-	}
-
-	x = r.Eval(s, "code", "nil()")
-	if x != nil {
-		t.Error("unexpected result", x)
-	}
-
-	x = r.Eval(s, "code", "nil(22)")
-	if err, ok := x.(error); !ok || err.Error() != "invalid function call" {
-		t.Error("unexpected result", x)
-	}
-
-	x = r.Eval(s, "code", "invalidf()")
-	if err, ok := x.(error); !ok || err.Error() != "invalid function" {
-		t.Error("unexpected result", x)
-	}
-
-	x = r.Eval(s, "code", "zzz")
-	if err, ok := x.(error); !ok || err.Error() != "no such key" {
-		t.Error("unexpected result", x)
-	}
-}
-
 func TestError(t *testing.T) {
 	s := runtime.NewScope(m, runtime.DefaultScope)
 
@@ -85,9 +57,11 @@ func TestDot(t *testing.T) {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "{z = y}.(invalidf())")
-	if err, ok := x.(error); !ok || err.Error() != "invalid function" {
-		t.Error("unexpected result", x)
+	if _, ok := m["invalidf"]; ok {
+		x = r.Eval(s, "code", "{z = y}.(invalidf())")
+		if err, ok := x.(error); !ok || err.Error() != "invalid function" {
+			t.Error("unexpected result", x)
+		}
 	}
 
 	x = r.Eval(s, "code", "{z = y}.goop.boop")

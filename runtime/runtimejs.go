@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style license
 // that can be found in the LICENSE file.
 
-// +build !gopherjs jsreflect
+// +build gopherjs,!jsreflect
 
 package runtime
 
@@ -10,7 +10,6 @@ import (
 	"errors"
 	"github.com/funnelorg/funnel/parse"
 	"github.com/funnelorg/funnel/run"
-	"reflect"
 )
 
 // Function converts any typed function into the type required by the
@@ -22,8 +21,11 @@ import (
 // Full support can be enabled for GopherJS builds by using the build
 // tag jsreflect
 func Function(fn interface{}) func(s run.Scope, args []parse.Node) interface{} {
+	if f, ok := fn.(func(s run.Scope, args []parse.Node) interface{}); ok {
+		return f
+	}
+
 	r := &run.Runner{}
-	fnv := reflect.ValueOf(fn)
 	return func(s run.Scope, args []parse.Node) (output interface{}) {
 		// TODO: replace panic/recover with proper type checks
 		defer func() {
@@ -32,18 +34,11 @@ func Function(fn interface{}) func(s run.Scope, args []parse.Node) interface{} {
 			}
 		}()
 
-		v := make([]reflect.Value, len(args))
+		v := make([]interface{}, len(args))
 		for kk := range args {
-			v[kk] = reflect.ValueOf(r.Run(s, args[kk]))
+			v[kk] = r.LazyRun(s, args[kk])
 		}
-		result := fnv.Call(v)
-		switch len(result) {
-		case 0:
-			return nil
-		case 1:
-			return result[0].Interface()
-		}
-		return errors.New("invalid function")
+		return fn.(func(args ...interface{}) interface{})(v...)
 	}
 }
 
@@ -54,11 +49,8 @@ func NewScope(m map[interface{}]interface{}, base run.Scope) run.Scope {
 	wrapped := map[interface{}]interface{}{}
 	for k, v := range m {
 		wrapped[k] = v
-		if reflect.ValueOf(v).Kind() == reflect.Func {
-			_, ok := v.(func(s run.Scope, args []parse.Node) interface{})
-			if !ok {
-				wrapped[k] = Function(v)
-			}
+		if _, ok := v.(func(args ...interface{}) interface{}); ok {
+			wrapped[k] = Function(v)
 		}
 	}
 	return &rtscope{wrapped, base}
