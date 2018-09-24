@@ -4,6 +4,8 @@
 
 package parse
 
+import "unicode"
+
 var priority = map[string]int{
 	"{": 0,
 	"}": 0,
@@ -144,7 +146,7 @@ func (s *shunt) pushOp(t Token, pri int) {
 }
 
 func (s *shunt) pushTerm(t Token) {
-	term := Node{Token: &t}
+	term := s.makeNum(Node{Token: &t})
 	if s.lastWasTerm() {
 		nn := []Node{s.popTerm(t.Loc), term}
 		s.terms = append(s.terms, Node{Call: &Call{Loc: t.Loc, Nodes: nn}})
@@ -267,7 +269,7 @@ func (s *shunt) makeMap(n Node) Node {
 		if len(n.Call.Nodes) != 3 {
 			return s.error("invalid equals use", n.Call.Loc)
 		}
-		key, value := n.Call.Nodes[1], n.Call.Nodes[2]
+		key, value := s.makeString(n.Call.Nodes[1]), n.Call.Nodes[2]
 		return Node{Map: &Map{n.Loc(), []Pair{{n.Call.Loc, key, value}}}}
 	}
 
@@ -280,8 +282,26 @@ func (s *shunt) makeMap(n Node) Node {
 		if !s.isAssoc(node, "=") || len(node.Call.Nodes) != 3 {
 			return s.error("invalid key=value", node.Loc())
 		}
-		key, value := node.Call.Nodes[1], node.Call.Nodes[2]
+		key, value := s.makeString(node.Call.Nodes[1]), node.Call.Nodes[2]
 		pairs = append(pairs, Pair{node.Call.Loc, key, value})
 	}
 	return Node{Map: &Map{n.Loc(), pairs}}
+}
+
+func (s *shunt) makeString(n Node) Node {
+	if n.Token == nil {
+		return n
+	}
+
+	nn := []Node{{Token: &Token{n.Loc(), "builtin:string"}}, n}
+	return Node{Call: &Call{n.Loc(), nn}}
+}
+
+func (s *shunt) makeNum(n Node) Node {
+	if n.Token == nil || n.Token.S == "" || !unicode.IsDigit([]rune(n.Token.S)[0]) {
+		return n
+	}
+
+	nn := []Node{{Token: &Token{n.Loc(), "builtin:number"}}, n}
+	return Node{Call: &Call{n.Loc(), nn}}
 }

@@ -135,6 +135,15 @@ func (c Call) IsOperator() bool {
 	return ok
 }
 
+func (c Call) isBuiltin() bool {
+	if c.Nodes[0].Token == nil {
+		return false
+	}
+
+	s := c.Nodes[0].Token.S
+	return s == "builtin:number" || s == "builtin:string"
+}
+
 // String formats the call expression properly
 func (c Call) String() string {
 	if c.IsError() {
@@ -144,6 +153,10 @@ func (c Call) String() string {
 
 	if c.IsOperator() {
 		return c.formatOperation()
+	}
+
+	if c.isBuiltin() {
+		return c.Nodes[1].String()
 	}
 
 	result := c.Nodes[0].String() + "("

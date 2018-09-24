@@ -12,7 +12,6 @@ import (
 	"github.com/funnelorg/funnel/run"
 	"github.com/funnelorg/funnel/runtime"
 	"math"
-	"strconv"
 )
 
 // New returns a scope with the default math routines
@@ -42,12 +41,6 @@ func Square(s run.Scope, args []parse.Node) interface{} {
 	case runtime.Number:
 		return runtime.Number{f.F * f.F}
 	case error:
-		if args[0].Token != nil {
-			ff, err := strconv.ParseFloat(args[0].Token.S, 64)
-			if err == nil {
-				return runtime.Number{ff * ff}
-			}
-		}
 		return result
 	}
 	return errors.New("square: not a number")
@@ -66,12 +59,6 @@ func Root(s run.Scope, args []parse.Node) interface{} {
 	case runtime.Number:
 		return runtime.Number{math.Sqrt(f.F)}
 	case error:
-		if args[0].Token != nil {
-			ff, err := strconv.ParseFloat(args[0].Token.S, 64)
-			if err == nil {
-				return runtime.Number{math.Sqrt(ff)}
-			}
-		}
 		return result
 	}
 	return errors.New("root: not a number")

@@ -38,7 +38,7 @@ func ExampleEval_functions() {
    fn = fun(x, y, x + y),
    x = notused,
    y = notused,
-   z = fn(num(5), num(10))
+   z = fn(5, 10)
 }.z`
 
 	fmt.Println(Eval(nil, "myfile.go", code))
