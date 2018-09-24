@@ -11,7 +11,7 @@ import (
 )
 
 func TestSimple(t *testing.T) {
-	result := funnel.Eval(nil, "boo", "num(4)+num(2)")
+	result := funnel.Eval(nil, "boo", "4+2")
 	expected := runtime.Number{6.0}
 	if result != expected {
 		t.Error("unexpected result", result)

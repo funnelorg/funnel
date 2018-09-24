@@ -40,6 +40,7 @@ func TestSuccess(t *testing.T) {
 		"x = z }.q":              "{x = z}.q",
 		"{x=y,a=b}":              "{x = y, a = b}",
 		"{x=y,a=b,m=n}":          "{x = y, a = b, m = n}",
+		"{f(x)=z}":               "{f(x) = z}",
 	}
 
 	for test, expected := range cases {

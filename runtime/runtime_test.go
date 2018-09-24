@@ -23,7 +23,9 @@ var m = map[interface{}]interface{}{
 	"invalidf": func() (int, int) {
 		return 0, 0
 	},
-	"float3": float64(3.0),
+	"float3f": func() float64 {
+		return 3.0
+	},
 }
 
 var r = &run.Runner{}
@@ -40,7 +42,7 @@ func TestNewScope(t *testing.T) {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "nil(num(22))")
+	x = r.Eval(s, "code", "nil(22)")
 	if err, ok := x.(error); !ok || err.Error() != "invalid function call" {
 		t.Error("unexpected result", x)
 	}
@@ -102,37 +104,42 @@ func TestDot(t *testing.T) {
 func TestNum(t *testing.T) {
 	s := runtime.NewScope(m, runtime.DefaultScope)
 
-	x := r.Eval(s, "code", "num(2, 3)")
+	x := r.Eval(s, "code", "builtin:number(2, 3)")
 	if err, ok := x.(error); !ok || err.Error() != "num: incorrect number of args" {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "num()")
+	x = r.Eval(s, "code", "builtin:number()")
 	if err, ok := x.(error); !ok || err.Error() != "num: incorrect number of args" {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "num(float3)")
+	x = r.Eval(s, "code", "3.0")
 	if x != (runtime.Number{3.0}) {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "num(float3)")
+	x = r.Eval(s, "code", "3.a")
+	if err, ok := x.(error); !ok || err.Error() != `strconv.ParseFloat: parsing "3.a": invalid syntax` {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "builtin:number(3.0)")
 	if x != (runtime.Number{3.0}) {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "num(num(float3))")
+	x = r.Eval(s, "code", "builtin:number(float3f())")
 	if x != (runtime.Number{3.0}) {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "num(num())")
+	x = r.Eval(s, "code", "builtin:number(builtin:number())")
 	if err, ok := x.(error); !ok || err.Error() != "num: incorrect number of args" {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "num(y)")
+	x = r.Eval(s, "code", "builtin:number(zf())")
 	if err, ok := x.(error); !ok || err.Error() != "num: invalid arg type" {
 		t.Error("unexpected result", x)
 	}
@@ -146,23 +153,23 @@ func TestSum(t *testing.T) {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "1 + float3")
+	x = r.Eval(s, "code", "1 + float3f()")
 	if x != (runtime.Number{4}) {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "num(1) + float3")
+	x = r.Eval(s, "code", "1 + float3f()")
 	if x != (runtime.Number{4}) {
-		t.Error("unexpected result", x)
-	}
-
-	x = r.Eval(s, "code", "1 + num(y)")
-	if err, ok := x.(error); !ok || err.Error() != "num: invalid arg type" {
 		t.Error("unexpected result", x)
 	}
 
 	x = r.Eval(s, "code", "1 + x")
 	if err, ok := x.(error); !ok || err.Error() != "sum: not a number" {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "1 + 3.a")
+	if err, ok := x.(error); !ok || err.Error() != `strconv.ParseFloat: parsing "3.a": invalid syntax` {
 		t.Error("unexpected result", x)
 	}
 }
@@ -174,13 +181,42 @@ func TestFun(t *testing.T) {
 		t.Error("unexpected result", x)
 	}
 
-	x = r.Eval(s, "code", "{x = fun(x, y, x + y), y = 42, z = x(num(2), num(3))}.z")
+	x = r.Eval(s, "code", "{x = fun(x, y, x + y), y = 42, z = x(2, 3)}.z")
 	if x != (runtime.Number{5}) {
 		t.Error("unexpected result", x)
 	}
 
 	x = r.Eval(s, "code", "fun(x+y,x+2y)")
 	if err, ok := x.(error); !ok || err.Error() != "fun: invalid param name" {
+		t.Error("unexpected result", x)
+	}
+}
+
+func TestString(t *testing.T) {
+	s := runtime.DefaultScope
+	x := r.Eval(s, "code", "builtin:string()")
+	if err, ok := x.(error); !ok || err.Error() != "string: incorrect number of args" {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "builtin:string(a, b)")
+	if err, ok := x.(error); !ok || err.Error() != "string: incorrect number of args" {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "builtin:string(builtin:string())")
+	if err, ok := x.(error); !ok || err.Error() != "string: incorrect number of args" {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "builtin:string(builtin:string(a))")
+	if x != "a" {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "builtin:string(1)")
+	if err, ok := x.(error); !ok || err.Error() != "string: invalid arg type" {
+
 		t.Error("unexpected result", x)
 	}
 }

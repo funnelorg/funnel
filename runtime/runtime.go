@@ -69,11 +69,12 @@ func (r *rtscope) Get(key interface{}) interface{} {
 }
 
 var def = map[interface{}]interface{}{
-	"!":   Error,
-	".":   Dot,
-	"+":   Sum,
-	"num": Num,
-	"fun": Fun,
+	"!":              Error,
+	".":              Dot,
+	"+":              Sum,
+	"builtin:number": Num,
+	"builtin:string": String,
+	"fun":            Fun,
 }
 
 // DefaultScope defines the default runtime methods

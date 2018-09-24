@@ -21,15 +21,6 @@ func (r *Runner) LazyRun(s Scope, expr parse.Node) interface{} {
 	return r.run(s, expr)
 }
 
-// runRaw only runs if the node is not a token. otherwise it returns
-// the raw string value of the token
-func (r *Runner) runRaw(s Scope, expr parse.Node) interface{} {
-	if expr.Token != nil {
-		return expr.Token.S
-	}
-	return r.Run(s, expr)
-}
-
 func (r *Runner) run(s Scope, n parse.Node) interface{} {
 	switch {
 	case n.Token != nil:
@@ -53,4 +44,18 @@ func (r *Runner) run(s Scope, n parse.Node) interface{} {
 // Eval is like Run except it parses the string as needed
 func (r *Runner) Eval(s Scope, fname, str string) interface{} {
 	return r.Run(s, parse.Parse(fname, str))
+}
+
+func unwrapValue(v interface{}) interface{} {
+	switch v := v.(type) {
+	case Lazy:
+		return unwrapValue(v.Value())
+	case map[interface{}]interface{}:
+		result := map[interface{}]interface{}{}
+		for key, value := range v {
+			result[key] = unwrapValue(value)
+		}
+		return result
+	}
+	return v
 }

@@ -24,11 +24,11 @@ func (d defaultScope) Get(key interface{}) interface{} {
 		return d.errorf
 	case ".":
 		return d.dotf
-	case "int":
+	case "builtin:number":
 		return d.intf
 	case "+":
 		return d.sumf
-	case "string":
+	case "builtin:string":
 		return d.stringf
 	}
 	if s, ok := key.(string); ok {

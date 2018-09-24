@@ -22,20 +22,20 @@ func Num(s run.Scope, args []parse.Node) interface{} {
 		return errors.New("num: incorrect number of args")
 	}
 
+	if args[0].Token != nil {
+		ff, err := strconv.ParseFloat(args[0].Token.S, 64)
+		if err == nil {
+			return Number{ff}
+		}
+		return err
+	}
+
 	result := (&run.Runner{}).Run(s, args[0])
 	switch f := result.(type) {
 	case float64:
 		return Number{f}
-	case Number:
+	case Number, error:
 		return result
-	case error:
-		if args[0].Token != nil {
-			ff, err := strconv.ParseFloat(args[0].Token.S, 64)
-			if err == nil {
-				return Number{ff}
-			}
-		}
-		return f
 	}
 	return errors.New("num: invalid arg type")
 }
@@ -51,13 +51,6 @@ func Sum(s run.Scope, args []parse.Node) interface{} {
 		case Number:
 			sum += f.F
 		case error:
-			if n.Token != nil {
-				ff, err := strconv.ParseFloat(n.Token.S, 64)
-				if err == nil {
-					sum += ff
-					continue
-				}
-			}
 			return result
 		default:
 			return errors.New("sum: not a number")

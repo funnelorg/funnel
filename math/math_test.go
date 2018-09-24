@@ -12,7 +12,7 @@ import (
 )
 
 func TestSquare(t *testing.T) {
-	x := funnel.Eval(math.New(), "boo", "math.square(num(5))")
+	x := funnel.Eval(math.New(), "boo", "math.square(5)")
 	if x != (runtime.Number{25}) {
 		t.Error("unexpected result", x)
 	}
@@ -33,7 +33,7 @@ func TestSquare(t *testing.T) {
 		t.Error("unexpected result", x)
 	}
 
-	x = funnel.Eval(math.New(), "boo", "math.square(num())")
+	x = funnel.Eval(math.New(), "boo", "math.square(builtin:number())")
 	if err, ok := x.(error); !ok || err.Error() != "num: incorrect number of args" {
 		t.Error("unexpected result", x)
 	}
@@ -45,7 +45,7 @@ func TestSquare(t *testing.T) {
 }
 
 func TestRoot(t *testing.T) {
-	x := funnel.Eval(math.New(), "boo", "math.root(num(25))")
+	x := funnel.Eval(math.New(), "boo", "math.root(25)")
 	if x != (runtime.Number{5}) {
 		t.Error("unexpected result", x)
 	}
@@ -66,7 +66,7 @@ func TestRoot(t *testing.T) {
 		t.Error("unexpected result", x)
 	}
 
-	x = funnel.Eval(math.New(), "boo", "math.root(num())")
+	x = funnel.Eval(math.New(), "boo", "math.root(builtin:number())")
 	if err, ok := x.(error); !ok || err.Error() != "num: incorrect number of args" {
 		t.Error("unexpected result", x)
 	}

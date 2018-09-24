@@ -50,7 +50,7 @@ type parser struct {
 
 func (p *parser) isOperator(r rune) bool {
 	_, ok := priority[string([]rune{r})]
-	return ok
+	return ok && (r != '.' || p.digit == -1)
 }
 
 func (p *parser) flush(idx int) {
@@ -77,6 +77,8 @@ func (p *parser) parse() Node {
 }
 
 func (p *parser) process(kk int, rr rune) {
+	// if modifying this expression, also change
+	// shunt.makeNum to match it
 	loc := Loc{p.fname, kk}
 	switch {
 	case p.quote >= 0 && rr != '\'':
