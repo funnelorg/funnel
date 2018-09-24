@@ -148,6 +148,79 @@ func TestSum(t *testing.T) {
 	}
 }
 
+func TestDiff(t *testing.T) {
+	s := runtime.NewScope(m, runtime.DefaultScope)
+
+	x := r.Eval(s, "code", "1 - 2")
+	if x != (runtime.Number{-1}) {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "1 - float3f() - 1")
+	if x != (runtime.Number{-3}) {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "1 - x")
+	if err, ok := x.(error); !ok || err.Error() != "diff: not a number" {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "1 - 3.a")
+	if err, ok := x.(error); !ok || err.Error() != `strconv.ParseFloat: parsing "3.a": invalid syntax` {
+		t.Error("unexpected result", x)
+	}
+}
+
+func TestMultiply(t *testing.T) {
+	s := runtime.NewScope(m, runtime.DefaultScope)
+
+	x := r.Eval(s, "code", "2 * 3")
+	if x != (runtime.Number{6}) {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "2 * float3f() * 4")
+	if x != (runtime.Number{24}) {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "1 * x")
+	if err, ok := x.(error); !ok || err.Error() != "mult: not a number" {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "1 * 3.a")
+	if err, ok := x.(error); !ok || err.Error() != `strconv.ParseFloat: parsing "3.a": invalid syntax` {
+		t.Error("unexpected result", x)
+	}
+}
+
+func TestDivide(t *testing.T) {
+	s := runtime.NewScope(m, runtime.DefaultScope)
+
+	x := r.Eval(s, "code", "6 /  3")
+	if x != (runtime.Number{2}) {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "12 / float3f() / 2")
+	if x != (runtime.Number{2}) {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "1 / x")
+	if err, ok := x.(error); !ok || err.Error() != "div: not a number" {
+		t.Error("unexpected result", x)
+	}
+
+	x = r.Eval(s, "code", "1 / 3.a")
+	if err, ok := x.(error); !ok || err.Error() != `strconv.ParseFloat: parsing "3.a": invalid syntax` {
+		t.Error("unexpected result", x)
+	}
+
+}
+
 func TestFun(t *testing.T) {
 	s := runtime.DefaultScope
 	x := r.Eval(s, "code", "fun()()")
