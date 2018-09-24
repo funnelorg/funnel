@@ -12,7 +12,8 @@ import (
 func ExampleEval_customScope() {
 	m := map[interface{}]interface{}{
 		"x": 5.0,
-		"square": func(n runtime.Number) float64 {
+		"square": func(args ...interface{}) interface{} {
+			n := args[0].(runtime.Number)
 			return n.F * n.F
 		},
 	}
