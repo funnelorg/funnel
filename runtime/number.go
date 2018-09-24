@@ -58,3 +58,70 @@ func Sum(s run.Scope, args []parse.Node) interface{} {
 	}
 	return Number{sum}
 }
+
+// Diff substracts Number-like items together
+func Diff(s run.Scope, args []parse.Node) interface{} {
+	var sum float64
+	factor := 1.0
+
+	for _, n := range args {
+		result := (&run.Runner{}).Run(s, n)
+		switch f := result.(type) {
+		case float64:
+			sum += factor * f
+		case Number:
+			sum += factor * f.F
+		case error:
+			return result
+		default:
+			return errors.New("diff: not a number")
+		}
+		factor = -1.0
+	}
+	return Number{sum}
+}
+
+// Multiply multiplie the Number-like items together
+func Multiply(s run.Scope, args []parse.Node) interface{} {
+	product := 1.0
+	for _, n := range args {
+		result := (&run.Runner{}).Run(s, n)
+		switch f := result.(type) {
+		case float64:
+			product = product * f
+		case Number:
+			product = product * f.F
+		case error:
+			return result
+		default:
+			return errors.New("mult: not a number")
+		}
+	}
+	return Number{product}
+}
+
+// Divide substracts Number-like items together
+func Divide(s run.Scope, args []parse.Node) interface{} {
+	product := 1.0
+	for kk, n := range args {
+		result := (&run.Runner{}).Run(s, n)
+		item := 1.0
+		switch f := result.(type) {
+		case float64:
+			item = f
+		case Number:
+			item = f.F
+		case error:
+			return result
+		default:
+			return errors.New("div: not a number")
+		}
+		if kk == 0 {
+			product = item
+		} else {
+			product = product / item
+		}
+
+	}
+	return Number{product}
+}
