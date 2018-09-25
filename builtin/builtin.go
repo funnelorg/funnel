@@ -33,7 +33,8 @@ var Map = map[interface{}]interface{}{
 	"or":             or,
 	"and":            and,
 
-	"error": errorf,
+	"error":  errorf,
+	"string": stringf,
 
 	"fun": fun,
 }
