@@ -5,37 +5,30 @@
 // Package url implements some helpful url functions
 package url
 
-import (
-	"errors"
-	"github.com/funnelorg/funnel/parse"
-	"github.com/funnelorg/funnel/run"
-	"github.com/funnelorg/funnel/runtime"
-)
+import "github.com/funnelorg/funnel/run"
 
-// New returns a new scope with the default url function
-func New(base run.Scope) run.Scope {
-	url := map[interface{}]interface{}{"url": urlf}
-	return runtime.NewScope(url, base)
+// Scope returns a new scope with the default url function
+func Scope(base run.Scope) run.Scope {
+	return run.NewScope([]map[interface{}]interface{}{Map}, base)
 }
 
-func urlf(s run.Scope, args []parse.Node) interface{} {
+// Map contains the functions provided by this package
+var Map = map[interface{}]interface{}{"url": run.ArgsResolver(urlf)}
+
+func urlf(args []interface{}) interface{} {
 	if len(args) != 1 {
-		return errors.New("url: requries exactly 1 arg")
+		return &run.ErrorStack{Message: "url: requires exactly 1 arg"}
 	}
 
-	result := (&run.Runner{}).Run(s, args[0])
-	switch f := result.(type) {
+	switch f := args[0].(type) {
 	case string:
 		return URL(f)
 	case URL:
 		return f
 	case error:
-		if args[0].Token != nil {
-			return URL(args[0].Token.S)
-		}
-		return result
+		return f
 	}
-	return errors.New("url: not a string")
+	return &run.ErrorStack{Message: "url: not a string"}
 }
 
 // URL represents a URL instance
@@ -44,7 +37,7 @@ type URL string
 // Get returns the "methods" of URL
 func (u URL) Get(key interface{}) interface{} {
 	if key != "json" {
-		return errors.New("no such key")
+		return &run.ErrorStack{Message: "no such key"}
 	}
 	return u.json
 }

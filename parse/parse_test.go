@@ -41,6 +41,8 @@ func TestSuccess(t *testing.T) {
 		"{x=y,a=b}":              "{x = y, a = b}",
 		"{x=y,a=b,m=n}":          "{x = y, a = b, m = n}",
 		"{f(x)=z}":               "{f(x) = z}",
+		"(x<y) & (y<=z)":         "x < y & y <= z",
+		"x < y <= z":             "(x < y) <= z",
 	}
 
 	for test, expected := range cases {

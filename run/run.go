@@ -21,6 +21,15 @@ func (r *Runner) LazyRun(s Scope, expr parse.Node) interface{} {
 	return r.run(s, expr)
 }
 
+// ResolveArgs resolves a collection of expressions.
+func (r *Runner) ResolveArgs(s Scope, args []parse.Node) []interface{} {
+	resolved := make([]interface{}, len(args))
+	for kk, arg := range args {
+		resolved[kk] = r.LazyRun(s, arg)
+	}
+	return resolved
+}
+
 func (r *Runner) run(s Scope, n parse.Node) interface{} {
 	switch {
 	case n.Token != nil:
@@ -34,11 +43,14 @@ func (r *Runner) run(s Scope, n parse.Node) interface{} {
 
 	switch fn := fn.(type) {
 	case func(s Scope, args []parse.Node) interface{}:
-		return fn(s, args)
+		return WrapError(fn(s, args), n.Loc())
+	case callable:
+		return WrapError(fn.Call(s, args), n.Loc())
 	case error:
-		return fn
+		return WrapError(fn, n.Loc())
 	}
-	return ErrNotFunction
+
+	return WrapError(&ErrorStack{Message: "not a function"}, n.Loc())
 }
 
 // Eval is like Run except it parses the string as needed
@@ -58,4 +70,18 @@ func unwrapValue(v interface{}) interface{} {
 		return result
 	}
 	return v
+}
+
+// ArgsResolver converts a FnResolved into an Fn. It resolves all the
+// args and calls the underlying function
+type ArgsResolver func(args []interface{}) interface{}
+
+// Call resolves all the args and calls the underlying function
+func (ar ArgsResolver) Call(s Scope, args []parse.Node) interface{} {
+	r := &Runner{}
+	return ar(r.ResolveArgs(s, args))
+}
+
+type callable interface {
+	Call(s Scope, args []parse.Node) interface{}
 }

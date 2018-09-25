@@ -40,7 +40,10 @@
 // quotes are used: "+zero+" is a valid identifier.
 package parse
 
-import "unicode"
+import (
+	"unicode"
+	"unicode/utf8"
+)
 
 type parser struct {
 	sh                       shunt
@@ -48,9 +51,9 @@ type parser struct {
 	digit, id, quote, dquote int
 }
 
-func (p *parser) isOperator(r rune) bool {
-	_, ok := priority[string([]rune{r})]
-	return ok && (r != '.' || p.digit == -1)
+func (p *parser) isOperator(s string) bool {
+	_, ok := priority[s]
+	return ok && (s != "." || p.digit == -1)
 }
 
 func (p *parser) flush(idx int) {
@@ -68,26 +71,51 @@ func (p *parser) flush(idx int) {
 }
 
 func (p *parser) parse() Node {
-	for kk, rr := range p.s {
-		p.process(kk, rr)
+	var last rune
+	s := p.s
+	for i, width := 0, 0; i < len(s); i += width {
+		var next rune
+
+		rr, w := utf8.DecodeRuneInString(s[i:])
+		if i+w < len(s) {
+			next, _ = utf8.DecodeRuneInString(s[i+w:])
+		}
+		p.process(i, rr, next, last)
+		width, last = w, rr
 	}
 
 	p.flush(len(p.s))
 	return p.sh.Parsed()
 }
 
-func (p *parser) process(kk int, rr rune) {
+func (p *parser) isOperatorEnd(rr, last rune) bool {
+	return rr == '=' && p.isOperator(string([]rune{last, rr}))
+}
+
+func (p *parser) isOperatorStart(rr, next rune) bool {
+	return next == '=' && p.isOperator(string([]rune{rr, next}))
+}
+
+func (p *parser) inQuote(rr rune) bool {
+	return p.quote >= 0 && rr != '\'' || p.dquote >= 0 && rr != '"'
+}
+
+func (p *parser) process(kk int, rr, next, last rune) {
 	// if modifying this expression, also change
 	// shunt.makeNum to match it
 	loc := Loc{p.fname, kk}
 	switch {
-	case p.quote >= 0 && rr != '\'':
-	case p.dquote >= 0 && rr != '"':
+	case p.inQuote(rr):
 	case rr == '\'', rr == '"':
 		p.onQuote(kk, rr)
 	case unicode.IsSpace(rr):
 		p.flush(kk)
-	case p.isOperator(rr):
+	case p.isOperatorEnd(rr, last): // 2-rune op like <=
+		p.flush(kk - 1)
+		p.sh.Push(Token{&Loc{p.fname, kk - 1}, string([]rune{last, rr})})
+	case p.isOperatorStart(rr, next): // 2-rune op like <=
+		// skip it, can handle it next time
+	case p.isOperator(string(rr)):
 		p.flush(kk)
 		p.sh.Push(Token{&loc, string(rr)})
 	case unicode.IsDigit(rr):

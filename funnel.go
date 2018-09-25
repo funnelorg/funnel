@@ -12,7 +12,7 @@
 //
 // It has functions and a dot notation:
 //
-//     math.square(x)
+//     math:square(x)
 //
 // It also has let/expressions for creating more complicated expressions:
 //
@@ -29,9 +29,9 @@
 package funnel
 
 import (
+	"github.com/funnelorg/funnel/builtin"
 	"github.com/funnelorg/funnel/parse"
 	"github.com/funnelorg/funnel/run"
-	"github.com/funnelorg/funnel/runtime"
 )
 
 // Scope is the interface that defines the "scope" of a particular
@@ -43,26 +43,12 @@ type Scope interface {
 // Eval evaluates code using the provided scope. The filename is used
 // for reporting errors.
 //
-// The default scope uses  the runtime which only defines "." (object
-// access), "!" (error function) and "+" (for arithmetic).
-//
-// Custom scopes can be defined like so:
-//
-//      m := map[interface{}]interface{} {
-//           "x": 5.0,
-//           "square": func(n runtime.Number) float64 {
-//               return n.F * n.F
-//            },
-//      }
-//      myScope := runtime.NewScope(m, runtime.DefaultScope)
-//
-//      x := funnel.Eval(myScope, "myfile.go", "square(x + 2)")
-//      // x == 49
-//
+// Custom scopes can be defined to pass global variables and
+// functions. See the examples
 func Eval(s Scope, filename, code string) interface{} {
-	r := run.Runner{}
+	r := &run.Runner{}
 	if s == nil {
-		s = runtime.DefaultScope
+		s = builtin.Scope
 	}
 	return r.Run(s, parse.Parse(filename, code))
 }

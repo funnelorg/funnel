@@ -39,7 +39,7 @@ func TestError(t *testing.T) {
 		"boo(5)": "unknown identifier: boo",
 		"2.3":    `strconv.Atoi: parsing "2.3": invalid syntax`,
 		"builtin:number('2.2')":   `strconv.Atoi: parsing "2.2": invalid syntax`,
-		"5(4)":                    "not a function",
+		"5(4)":                    "not a function at code:2",
 		"{x = 5}.(5)":             "unknown identifier",
 		"2 ++ 3":                  "missing term",
 		"!(5)":                    "unknown error",
@@ -48,7 +48,7 @@ func TestError(t *testing.T) {
 		"builtin:number(5, 3)":    "int expects a single arg",
 		"builtin:number({x = 2})": "int: unknown argument type",
 		"5 + {x = 2}":             "sum: only works with ints",
-		"{x = y, y = x + 2}.x":    "invalid recursion",
+		"{x = y, y = x + 2}.x":    "invalid recursion at code:3",
 	}
 
 	r := &run.Runner{}

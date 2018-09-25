@@ -7,59 +7,46 @@
 package math
 
 import (
-	"errors"
-	"github.com/funnelorg/funnel/parse"
+	"github.com/funnelorg/funnel/builtin"
 	"github.com/funnelorg/funnel/run"
-	"github.com/funnelorg/funnel/runtime"
 	"math"
 )
 
-// New returns a scope with the default math routines
-func New() run.Scope {
-	m := map[interface{}]interface{}{
-		"square": Square,
-		"root":   Root,
-	}
-
-	math := map[interface{}]interface{}{
-		"math": runtime.NewScope(m, runtime.DefaultScope),
-	}
-
-	return runtime.NewScope(math, runtime.DefaultScope)
+// Scope defines a new scope for math based on the provided scope
+func Scope(base run.Scope) run.Scope {
+	return run.NewScope([]map[interface{}]interface{}{Map}, base)
 }
 
-// Square calculates the square of a number-like item
-func Square(s run.Scope, args []parse.Node) interface{} {
-	if len(args) != 1 {
-		return errors.New("square: must have exactly 1 arg")
-	}
-
-	result := (&run.Runner{}).Run(s, args[0])
-	switch f := result.(type) {
-	case float64:
-		return runtime.Number{f * f}
-	case runtime.Number:
-		return runtime.Number{f.F * f.F}
-	case error:
-		return result
-	}
-	return errors.New("square: not a number")
+// Map provides the set of functions that math defines
+var Map = map[interface{}]interface{}{
+	"math:square": run.ArgsResolver(square),
+	"math:root":   run.ArgsResolver(root),
 }
 
-// Root calculates the square of a number-like item
-func Root(s run.Scope, args []parse.Node) interface{} {
+func square(args []interface{}) interface{} {
 	if len(args) != 1 {
-		return errors.New("root: must have exactly 1 arg")
+		return &run.ErrorStack{Message: "math:square: must have exactly 1 arg"}
 	}
 
-	result := (&run.Runner{}).Run(s, args[0])
-	switch f := result.(type) {
-	case float64:
-		return runtime.Number{math.Sqrt(f)}
-	case runtime.Number:
-		return runtime.Number{math.Sqrt(f.F)}
+	switch f := args[0].(type) {
+	case builtin.Number:
+		return builtin.Number{f.F * f.F}
 	case error:
-		return result
+		return f
 	}
-	return errors.New("root: not a number")
+	return &run.ErrorStack{Message: "math:square: not a number"}
+}
+
+func root(args []interface{}) interface{} {
+	if len(args) != 1 {
+		return &run.ErrorStack{Message: "math:root: must have exactly 1 arg"}
+	}
+
+	switch f := args[0].(type) {
+	case builtin.Number:
+		return builtin.Number{math.Sqrt(f.F)}
+	case error:
+		return f
+	}
+	return &run.ErrorStack{Message: "math:root: not a number"}
 }
