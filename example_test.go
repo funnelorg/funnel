@@ -6,18 +6,19 @@ package funnel
 
 import (
 	"fmt"
-	"github.com/funnelorg/funnel/runtime"
+	"github.com/funnelorg/funnel/builtin"
+	"github.com/funnelorg/funnel/run"
 )
 
 func ExampleEval_customScope() {
-	m := map[interface{}]interface{}{
-		"x": 5.0,
-		"square": func(args ...interface{}) interface{} {
-			n := args[0].(runtime.Number)
+	m := []map[interface{}]interface{}{{
+		"x": builtin.Number{5.0},
+		"square": run.ArgsResolver(func(args []interface{}) interface{} {
+			n := args[0].(builtin.Number)
 			return n.F * n.F
-		},
-	}
-	myScope := runtime.NewScope(m, runtime.DefaultScope)
+		}),
+	}}
+	myScope := run.NewScope(m, builtin.Scope)
 
 	x := Eval(myScope, "myfile.go", "square(x + 2)")
 	fmt.Println("square:", x)

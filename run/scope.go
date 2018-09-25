@@ -44,7 +44,9 @@ func (ms *mapScope) Get(key interface{}) interface{} {
 	}
 
 	if ms.running[key] {
-		return ErrInvalidRecursion
+		loc := ms.parsed.Pairs[ms.keys[key]].Loc
+		f, o := loc.File, loc.Offset
+		return &ErrorStack{Message: "invalid recursion", File: f, Offset: o}
 	}
 	ms.running[key] = true
 	defer func() {
@@ -60,7 +62,8 @@ func (ms *mapScope) Get(key interface{}) interface{} {
 		ms.values = map[interface{}]interface{}{}
 	}
 
-	ms.values[key] = ms.Runner.Run(ms, ms.parsed.Pairs[idx].Value)
+	val := ms.Runner.Run(ms, ms.parsed.Pairs[idx].Value)
+	ms.values[key] = WrapError(val, ms.parsed.Pairs[idx].Loc)
 	return ms.values[key]
 }
 
@@ -75,4 +78,37 @@ func (ms *mapScope) getKeys() map[interface{}]int {
 	}
 
 	return ms.keys
+}
+
+// NewScope creates a scope out of a set of maps, defaulting ot the
+// base if no keys are found
+func NewScope(maps []map[interface{}]interface{}, base Scope) Scope {
+	combined := map[interface{}]interface{}{}
+	for _, mm := range maps {
+		if len(maps) == 1 {
+			return &scope{mm, base}
+		}
+		for k, v := range mm {
+			combined[k] = v
+		}
+	}
+	return &scope{combined, base}
+}
+
+type scope struct {
+	mm   map[interface{}]interface{}
+	base Scope
+}
+
+func (s *scope) Get(key interface{}) interface{} {
+	if v, ok := s.mm[key]; ok {
+		return v
+	}
+	if s.base == nil {
+		if s, ok := key.(string); ok {
+			return &ErrorStack{Message: s + ": no such key"}
+		}
+		return &ErrorStack{Message: "No such key"}
+	}
+	return s.base.Get(key)
 }

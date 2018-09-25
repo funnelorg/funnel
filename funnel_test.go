@@ -6,13 +6,13 @@ package funnel_test
 
 import (
 	"github.com/funnelorg/funnel"
-	"github.com/funnelorg/funnel/runtime"
+	"github.com/funnelorg/funnel/builtin"
 	"testing"
 )
 
 func TestSimple(t *testing.T) {
 	result := funnel.Eval(nil, "boo", "4+2")
-	expected := runtime.Number{6.0}
+	expected := builtin.Number{6.0}
 	if result != expected {
 		t.Error("unexpected result", result)
 	}

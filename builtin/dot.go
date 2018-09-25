@@ -2,16 +2,14 @@
 // Use of this source code is governed by a MIT-style license
 // that can be found in the LICENSE file.
 
-package runtime
+package builtin
 
 import (
-	"errors"
 	"github.com/funnelorg/funnel/parse"
 	"github.com/funnelorg/funnel/run"
 )
 
-// Dot implements the object dot notation accessing the sequence of fields.
-func Dot(s run.Scope, args []parse.Node) interface{} {
+func dot(s run.Scope, args []parse.Node) interface{} {
 	r := &run.Runner{}
 	result := r.LazyRun(s, args[0])
 	for _, next := range args[1:] {
@@ -32,7 +30,7 @@ func Dot(s run.Scope, args []parse.Node) interface{} {
 		case error:
 			return sx
 		default:
-			return errors.New("cannot use dot with non-map")
+			return &run.ErrorStack{Message: "cannot use dot with non-map"}
 		}
 	}
 	return result

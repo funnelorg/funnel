@@ -5,74 +5,40 @@
 package math_test
 
 import (
-	"github.com/funnelorg/funnel"
+	"github.com/funnelorg/funnel/builtin"
 	"github.com/funnelorg/funnel/math"
-	"github.com/funnelorg/funnel/runtime"
+	"github.com/funnelorg/funnel/run"
 	"testing"
 )
 
-func TestSquare(t *testing.T) {
-	x := funnel.Eval(math.New(), "boo", "math.square(5)")
-	if x != (runtime.Number{25}) {
-		t.Error("unexpected result", x)
-	}
+var cases = map[string]interface{}{
+	// square
+	"math:square(5)":     builtin.Number{25},
+	"math:square()":      "math:square: must have exactly 1 arg at file:11",
+	"math:square(2++2)":  "missing term at file:14",
+	"math:square({x=2})": "math:square: not a number at file:14",
 
-	s := runtime.NewScope(map[interface{}]interface{}{"x": 5.0}, math.New())
-	x = funnel.Eval(s, "boo", "math.square(x)")
-	if x != (runtime.Number{25}) {
-		t.Error("unexpected result", x)
-	}
-
-	x = funnel.Eval(math.New(), "boo", "math.square(5)")
-	if x != (runtime.Number{25}) {
-		t.Error("unexpected result", x)
-	}
-
-	x = funnel.Eval(math.New(), "boo", "math.square()")
-	if err, ok := x.(error); !ok || err.Error() != "square: must have exactly 1 arg" {
-		t.Error("unexpected result", x)
-	}
-
-	x = funnel.Eval(math.New(), "boo", "math.square(builtin:number())")
-	if err, ok := x.(error); !ok || err.Error() != "num: incorrect number of args" {
-		t.Error("unexpected result", x)
-	}
-
-	x = funnel.Eval(math.New(), "boo", "math.square(math)")
-	if err, ok := x.(error); !ok || err.Error() != "square: not a number" {
-		t.Error("unexpected result", x)
-	}
+	// root
+	"math:root(25)":    builtin.Number{5},
+	"math:root()":      "math:root: must have exactly 1 arg at file:9",
+	"math:root(2++2)":  "missing term at file:12",
+	"math:root({x=2})": "math:root: not a number at file:12",
 }
 
-func TestRoot(t *testing.T) {
-	x := funnel.Eval(math.New(), "boo", "math.root(25)")
-	if x != (runtime.Number{5}) {
-		t.Error("unexpected result", x)
-	}
+func TestMath(t *testing.T) {
+	r := &run.Runner{}
+	s := math.Scope(builtin.Scope)
 
-	s := runtime.NewScope(map[interface{}]interface{}{"x": 25.0}, math.New())
-	x = funnel.Eval(s, "boo", "math.root(x)")
-	if x != (runtime.Number{5}) {
-		t.Error("unexpected result", x)
-	}
-
-	x = funnel.Eval(math.New(), "boo", "math.root(25)")
-	if x != (runtime.Number{5}) {
-		t.Error("unexpected result", x)
-	}
-
-	x = funnel.Eval(math.New(), "boo", "math.root()")
-	if err, ok := x.(error); !ok || err.Error() != "root: must have exactly 1 arg" {
-		t.Error("unexpected result", x)
-	}
-
-	x = funnel.Eval(math.New(), "boo", "math.root(builtin:number())")
-	if err, ok := x.(error); !ok || err.Error() != "num: incorrect number of args" {
-		t.Error("unexpected result", x)
-	}
-
-	x = funnel.Eval(math.New(), "boo", "math.root(math.root)")
-	if err, ok := x.(error); !ok || err.Error() != "root: not a number" {
-		t.Error("unexpected result", x)
+	for code, expected := range cases {
+		t.Run(code, func(t *testing.T) {
+			value := r.Eval(s, "file", code)
+			if err, ok := value.(error); ok {
+				if err.Error() != expected {
+					t.Error("Failed", value)
+				}
+			} else if value != expected {
+				t.Error("Failed", value)
+			}
+		})
 	}
 }
