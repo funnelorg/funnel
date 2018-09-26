@@ -73,9 +73,11 @@ func (s *shunt) Parsed() Node {
 		if op.S == "{" {
 			s.Push(Token{op.Loc, "}"})
 			missingTerm = false
+			kk = len(s.ops)-1
 		} else if op.S == "(" {
 			s.Push(Token{op.Loc, ")"})
 			missingTerm = false
+			kk = len(s.ops)-1
 		}
 	}
 
