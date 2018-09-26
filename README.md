@@ -5,12 +5,30 @@
 [![codecov](https://codecov.io/gh/funnelorg/funnel/branch/master/graph/badge.svg)](https://codecov.io/gh/funnelorg/funnel)
 [![GoReportCard](https://goreportcard.com/badge/github.com/funnelorg/funnel)](https://goreportcard.com/report/github.com/funnelorg/funnel)
 
+Core features of the language:
+
+   - Interpreted but plans to compile to JS or Go
+   - Infix expressions
+   - Pure functional, no assignments
+   - Map expression to support complicated expression: `{x = 23, y = x+2}`
+   - Define closures with `fun(arg1, arg2,.. expression)` syntax
+   - data:list and data:map provide ability to do filter/map
+   - general type system not yet implemented
+   - easy to add custom functions
+
+## Playground
+
+See the language in action
+[here](https://funnelorg.github.io/playground/)
+
+## Introduction
+
 Funnel is a an experimental simple functional language.
 
 The language has been designed to have very little by way of syntax:
 Everything is just an infix expression with a small set of builtin
-binary operators: `+ - * / . = ,` and two grouping operators `()` and
-`{}`.
+binary operators: `+ - * / . = , < > <= >= != == & |` and two grouping
+operators `()` and `{}`.
 
 The curly braces functions as a "let expression":
 
@@ -34,14 +52,26 @@ expression:
     }.y
 ```
 
-There are no built-in types of any sort -- all types and value
-composition are done via functions.  For instance, `num(5)` converts
-the parameter by interpreting its argument as an number.
+The `data:list` function provides ability to work with array-like
+entites:
 
-## Playground
+```
+    data:list(1, 2, 3).item(1)
+```
 
-There is a [playground](https://funnelorg.github.io/playground/) for
-running the funnel interpreter.
+Lists also support `filter` and `map` functions:
+
+```
+   data:list(1, 2, 3).filter(fun(index, value, index < 2 || value > 2))
+   data:list(1, 2, 3).map(fun(index, value, value*2))
+```
+
+The `data:map` functions provides access to `filter` and `map` on top
+of the regular map expression:
+
+```
+   data:map{x = 42}.filter(fun(index, value, index == string x))
+```
 
 ## Vision
 

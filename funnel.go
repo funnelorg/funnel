@@ -16,7 +16,7 @@
 //
 // It also has let/expressions for creating more complicated expressions:
 //
-//    {l = 5, h = 10, hypo = math.root(l*l + h*h)}.hypo
+//    {l = 5, h = 10, hypo = math:root(l*l + h*h)}.hypo
 //
 // Let expressions can be given in any order.
 //
@@ -24,7 +24,7 @@
 //
 //    {f = fun(x, y, x+y), z = f(2, 3)}.z
 //
-// There is a playground to test out these functions:
+// There is a playground interpreter to test code (with examples):
 //   https://funnelorg.github.io/playground/
 package funnel
 
