@@ -119,7 +119,7 @@ func (t list) filterf(args []interface{}) interface{} {
 	result := []interface{}(nil)
 	for kk, elt := range t {
 		params := []interface{}{builtin.Number{float64(kk)}, elt}
-		switch check := t.invoke("filter", args[0], params).(type) {
+		switch check := invoke("filter", args[0], params).(type) {
 		case bool:
 			if check {
 				result = append(result, elt)
@@ -141,12 +141,12 @@ func (t list) mapf(args []interface{}) interface{} {
 	result := []interface{}(nil)
 	for kk, elt := range t {
 		params := []interface{}{builtin.Number{float64(kk)}, elt}
-		result = append(result, t.invoke("map", args[0], params))
+		result = append(result, invoke("map", args[0], params))
 	}
 	return list(result)
 }
 
-func (t list) invoke(kind string, fn interface{}, args []interface{}) interface{} {
+func invoke(kind string, fn interface{}, args []interface{}) interface{} {
 	var f func(s run.Scope, args []parse.Node) interface{}
 
 	switch fn := fn.(type) {

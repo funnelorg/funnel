@@ -15,6 +15,7 @@ func Scope(base run.Scope) run.Scope {
 // Map contains the map of builtins
 var Map = map[interface{}]interface{}{
 	"data:list": run.ArgsResolver(listf),
+	"data:map":  run.ArgsResolver(mapf),
 }
 
 // List is the native version of data:list
