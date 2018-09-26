@@ -7,6 +7,7 @@ package run_test
 import (
 	"github.com/funnelorg/funnel/run"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -38,8 +39,8 @@ func TestSuccess(t *testing.T) {
 func TestError(t *testing.T) {
 	cases := map[string]interface{}{
 		"boo(5)": "unknown identifier: boo",
-		"2.3":    `strconv.Atoi: parsing "2.3": invalid syntax`,
-		"builtin:number('2.2')":   `strconv.Atoi: parsing "2.2": invalid syntax`,
+		"2.3":    `strconv.ParseInt: parsing "2.3": invalid syntax`,
+		"builtin:number('2.2')":   `strconv.ParseInt: parsing "2.2": invalid syntax`,
 		"5(4)":                    "not a function at code:2",
 		"{x = 5}.(5)":             "unknown identifier",
 		"2 ++ 3":                  "missing term",
@@ -59,9 +60,13 @@ func TestError(t *testing.T) {
 			actual := r.Eval(s, "code", name)
 			if err, ok := actual.(error); !ok {
 				t.Error("Unexpected successful result", actual)
-			} else if err.Error() != expected {
+			} else if mapError(err.Error()) != expected {
 				t.Error("Expected", expected, "got", err)
 			}
 		})
 	}
+}
+
+func mapError(s string) string {
+	return strings.Replace(s, "strconv.Atoi", "strconv.ParseInt", 1)
 }
