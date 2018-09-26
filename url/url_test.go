@@ -12,15 +12,10 @@ import (
 	"testing"
 )
 
-var jsonURL = `https://jsonplaceholder.typicode.com/todos/1`
+var jsonURL = `https://api.myjson.com/bins/ngfbw`
 var urlCall = `url(builtin:string "` + jsonURL + `")`
 var s = url.Scope(builtin.Scope)
-var data = map[string]interface{}{
-	"userId":    1.0,
-	"id":        1.0,
-	"title":     "delectus aut autem",
-	"completed": false,
-}
+var data = map[interface{}]interface{}{"hello": "world"}
 
 var cases = map[string]interface{}{
 	"url()":                "url: requires exactly 1 arg at file:3",
@@ -28,7 +23,7 @@ var cases = map[string]interface{}{
 	urlCall:                url.URL(jsonURL),
 	"url(" + urlCall + ")": url.URL(jsonURL),
 	urlCall + ".json()":    data,
-	urlCall + ".boo":       "no such key at file:66",
+	urlCall + ".boo":       "no such key at file:55",
 	"url(1++2)":            "missing term at file:6",
 
 	"url(builtin:string 'http://google.com').json()":      "invalid character '<' looking for beginning of value",
@@ -39,7 +34,7 @@ var cases = map[string]interface{}{
 func TestUrl(t *testing.T) {
 	for code, expected := range cases {
 		t.Run(code, func(t *testing.T) {
-			value := funnel.Eval(s, "file", code)
+			value := native(funnel.Eval(s, "file", code))
 			if err, ok := value.(error); ok {
 				if err.Error() != expected {
 					t.Error("Failed", value)
@@ -49,4 +44,22 @@ func TestUrl(t *testing.T) {
 			}
 		})
 	}
+}
+
+func native(v interface{}) interface{} {
+	s, ok := v.(scopeWithKeys)
+	if !ok {
+		return v
+	}
+	result := map[interface{}]interface{}{}
+	s.ForEachKeys(func(key interface{}) bool {
+		result[key] = native(s.Get(key))
+		return false
+	})
+	return result
+}
+
+type scopeWithKeys interface {
+	Get(key interface{}) interface{}
+	ForEachKeys(fn func(interface{}) bool)
 }

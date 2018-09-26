@@ -22,3 +22,27 @@ var Map = map[interface{}]interface{}{
 func List(items []interface{}) interface{} {
 	return list(items)
 }
+
+// Wrap converts any native type into a Map or List
+func Wrap(v interface{}) interface{} {
+	switch v := v.(type) {
+	case mscope:
+		return v
+	case scopeWithKeys:
+		return mscope{v}
+	case []interface{}:
+		return list(v)
+	case map[interface{}]interface{}:
+		mapped := run.NewScope([]map[interface{}]interface{}{v}, nil)
+		return mscope{mapped.(scopeWithKeys)}
+	case map[string]interface{}:
+		result := map[interface{}]interface{}{}
+		for key, value := range v {
+			result[key] = value
+		}
+		mapped := run.NewScope([]map[interface{}]interface{}{result}, nil)
+		return mscope{mapped.(scopeWithKeys)}
+	default:
+		return v
+	}
+}

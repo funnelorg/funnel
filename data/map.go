@@ -64,7 +64,7 @@ func (m mscope) filterf(args []interface{}) interface{} {
 	var err error
 	m.s.ForEachKeys(func(key interface{}) bool {
 		v := m.s.Get(key)
-		params := []interface{}{key, v}
+		params := []interface{}{key, Wrap(v)}
 		switch check := invoke("filter", args[0], params).(type) {
 		case bool:
 			if check {
@@ -81,9 +81,7 @@ func (m mscope) filterf(args []interface{}) interface{} {
 	if err != nil {
 		return err
 	}
-
-	filtered := run.NewScope([]map[interface{}]interface{}{result}, nil)
-	return mscope{filtered.(scopeWithKeys)}
+	return Wrap(result)
 }
 
 func (m mscope) mapf(args []interface{}) interface{} {
@@ -93,11 +91,9 @@ func (m mscope) mapf(args []interface{}) interface{} {
 
 	result := map[interface{}]interface{}{}
 	m.s.ForEachKeys(func(key interface{}) bool {
-		params := []interface{}{key, m.s.Get(key)}
+		params := []interface{}{key, Wrap(m.s.Get(key))}
 		result[key] = invoke("map", args[0], params)
 		return false
 	})
-
-	mapped := run.NewScope([]map[interface{}]interface{}{result}, nil)
-	return mscope{mapped.(scopeWithKeys)}
+	return Wrap(result)
 }
