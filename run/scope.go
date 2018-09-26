@@ -34,7 +34,7 @@ func (ms *mapScope) Value() interface{} {
 	for key := range ms.getKeys() {
 		result[key] = ms.Get(key)
 	}
-	return result
+	return &scope{result, ms.base}
 }
 
 func (ms *mapScope) Get(key interface{}) interface{} {
@@ -65,6 +65,14 @@ func (ms *mapScope) Get(key interface{}) interface{} {
 	val := ms.Runner.Run(ms, ms.parsed.Pairs[idx].Value)
 	ms.values[key] = WrapError(val, ms.parsed.Pairs[idx].Loc)
 	return ms.values[key]
+}
+
+func (ms *mapScope) ForEachKeys(fn func(interface{}) bool) {
+	for key := range ms.getKeys() {
+		if fn(key) {
+			break
+		}
+	}
 }
 
 func (ms *mapScope) getKeys() map[interface{}]int {
@@ -111,4 +119,12 @@ func (s *scope) Get(key interface{}) interface{} {
 		return &ErrorStack{Message: "No such key"}
 	}
 	return s.base.Get(key)
+}
+
+func (s *scope) ForEachKeys(fn func(interface{}) bool) {
+	for key := range s.mm {
+		if fn(key) {
+			break
+		}
+	}
 }

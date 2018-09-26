@@ -59,15 +59,8 @@ func (r *Runner) Eval(s Scope, fname, str string) interface{} {
 }
 
 func unwrapValue(v interface{}) interface{} {
-	switch v := v.(type) {
-	case Lazy:
-		return unwrapValue(v.Value())
-	case map[interface{}]interface{}:
-		result := map[interface{}]interface{}{}
-		for key, value := range v {
-			result[key] = unwrapValue(value)
-		}
-		return result
+	if l, ok := v.(Lazy); ok {
+		return unwrapValue(l.Value())
 	}
 	return v
 }

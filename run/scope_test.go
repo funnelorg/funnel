@@ -5,9 +5,52 @@
 package run_test
 
 import (
+	"github.com/funnelorg/funnel/parse"
 	"github.com/funnelorg/funnel/run"
 	"testing"
 )
+
+func TestForEachKeys(t *testing.T) {
+	r := &run.Runner{}
+	s := &defaultScope{r}
+
+	mscope := r.LazyRun(s, parse.Parse("code", "{x = 4, y = 2}"))
+	found := false
+	mscope.(keys).ForEachKeys(func(key interface{}) bool {
+		if key != "x" && key != "y" {
+			t.Fatal("Unexpected key", key)
+		}
+		found = true
+		return true
+	})
+	if !found {
+		t.Fatal("No keys found")
+	}
+
+	m1 := map[interface{}]interface{}{
+		"hello": "world",
+		"one":   "one",
+		11:      "ok",
+	}
+
+	m2 := map[interface{}]interface{}{
+		"hello": "world2",
+		"two":   "two",
+	}
+
+	found = false
+	sx := run.NewScope([]map[interface{}]interface{}{m1, m2}, nil)
+	sx.(keys).ForEachKeys(func(key interface{}) bool {
+		if m1[key] == nil && m2[key] == nil {
+			t.Fatal("Unexpected key", key)
+		}
+		found = true
+		return true
+	})
+	if !found {
+		t.Fatal("No keys found")
+	}
+}
 
 func TestScope(t *testing.T) {
 	m1 := map[interface{}]interface{}{
@@ -54,4 +97,8 @@ func TestScope(t *testing.T) {
 			t.Error("Unexpected result", key, "=>", x)
 		}
 	}
+}
+
+type keys interface {
+	ForEachKeys(fn func(interface{}) bool)
 }
