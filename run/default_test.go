@@ -34,6 +34,10 @@ func (d defaultScope) Get(key interface{}) interface{} {
 	return errors.New("unknown identifier")
 }
 
+func (d defaultScope) ForEachKeys(fn func(interface{}) bool) {
+	// not implemented
+}
+
 func (d defaultScope) errorf(s run.Scope, args []parse.Node) interface{} {
 	if len(args) > 0 {
 		var param interface{}

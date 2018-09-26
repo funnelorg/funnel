@@ -11,19 +11,20 @@ import (
 )
 
 func TestSuccess(t *testing.T) {
+	r := &run.Runner{}
+	s := &defaultScope{r}
+
 	cases := map[string]interface{}{
 		"builtin:number(4)":           4,
 		"4":                           4,
 		"4 + 5":                       9,
 		"4 + 5 + 6":                   15,
-		"{x = 4}":                     map[interface{}]interface{}{"x": 4},
+		"{x = 4}":                     run.NewScope([]map[interface{}]interface{}{{"x": 4}}, s),
 		"{x = 4, y = x+2}.y":          6,
 		"{x = 2, y = x + x, z = 3}.y": 4,
 		"{builtin:string x = 5}.x":    5,
 	}
 
-	r := &run.Runner{}
-	s := &defaultScope{r}
 	for name, expected := range cases {
 		t.Run(name, func(t *testing.T) {
 			actual := r.Eval(s, "code", name)
