@@ -9,6 +9,7 @@ package url
 import (
 	"encoding/json"
 	"errors"
+	"github.com/funnelorg/funnel/data"
 	"github.com/funnelorg/funnel/parse"
 	"github.com/funnelorg/funnel/run"
 	"net/http"
@@ -36,5 +37,5 @@ func (u URL) json(s run.Scope, args []parse.Node) interface{} {
 	if err != nil {
 		return err
 	}
-	return result
+	return data.Wrap(result)
 }

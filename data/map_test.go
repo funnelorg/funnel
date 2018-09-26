@@ -37,10 +37,24 @@ var mapCases = map[string]interface{}{
 	// unknown field
 	"data:map{x=2}.wat":       "wat: no such key at file:13",
 	"data:map{x=2}.({x = 2})": "No such key at file:13",
+
+	// testing Wraps
+	"data:map{x={y=2}}.map(fun(i,v,v.count()))":         "map[x:{1}]",
+	"data:map{x=data:map{y=2}}.map(fun(i,v,v.count()))": "map[x:{1}]",
+	"data:map{x=a}.map(fun(i,v,v.item(0)))":             "map[x:hello]",
+	"data:map{x=c}.map(fun(i,v,v.count()))":             "map[x:{1}]",
+
+	// nested access
+	"data:map{x=2}.x": builtin.Number{2},
 }
 
 func TestMap(t *testing.T) {
-	s := data.Scope(builtin.Scope)
+	vars := []map[interface{}]interface{}{{
+		"a": []interface{}{"hello"},
+		"b": map[interface{}]interface{}{"zoo": "boo"},
+		"c": map[string]interface{}{"boo": "zoo"},
+	}}
+	s := run.NewScope(vars, data.Scope(builtin.Scope))
 	r := &run.Runner{}
 
 	for code, expected := range mapCases {

@@ -7,6 +7,7 @@
 package url
 
 import (
+	"github.com/funnelorg/funnel/data"
 	"github.com/funnelorg/funnel/parse"
 	"github.com/funnelorg/funnel/run"
 	"honnef.co/go/js/xhr"
@@ -20,5 +21,5 @@ func (u URL) json(s run.Scope, args []parse.Node) interface{} {
 	if err != nil {
 		return err
 	}
-	return req.Response.Interface()
+	return data.Wrap(req.Response.Interface())
 }

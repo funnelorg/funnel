@@ -32,6 +32,8 @@ func (t list) Get(key interface{}) interface{} {
 	case "splice":
 		return run.ArgsResolver(t.splicef)
 	}
+
+	// access the fields of all the inner nodes, skipping non scopes
 	if s, ok := key.(string); ok {
 		return &run.ErrorStack{Message: "unknown field: " + s}
 	}
@@ -53,7 +55,7 @@ func (t list) itemf(args []interface{}) interface{} {
 	if idx < 0 || idx >= len(t) {
 		return &run.ErrorStack{Message: "item: out of bounds"}
 	}
-	return t[idx]
+	return Wrap(t[idx])
 }
 
 func (t list) slicef(args []interface{}) interface{} {
@@ -118,7 +120,7 @@ func (t list) filterf(args []interface{}) interface{} {
 
 	result := []interface{}(nil)
 	for kk, elt := range t {
-		params := []interface{}{builtin.Number{float64(kk)}, elt}
+		params := []interface{}{builtin.Number{float64(kk)}, Wrap(elt)}
 		switch check := invoke("filter", args[0], params).(type) {
 		case bool:
 			if check {
@@ -140,7 +142,7 @@ func (t list) mapf(args []interface{}) interface{} {
 
 	result := []interface{}(nil)
 	for kk, elt := range t {
-		params := []interface{}{builtin.Number{float64(kk)}, elt}
+		params := []interface{}{builtin.Number{float64(kk)}, Wrap(elt)}
 		result = append(result, invoke("map", args[0], params))
 	}
 	return list(result)
