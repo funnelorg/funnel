@@ -33,8 +33,12 @@ type mscope struct {
 func (m mscope) Get(key interface{}) interface{} {
 	switch key {
 	case "filter":
-		return run.ArgsResolver(m.filterf)
+		return m.filterExpr
 	case "map":
+		return m.mapExpr
+	case "filterf":
+		return run.ArgsResolver(m.filterf)
+	case "mapf":
 		return run.ArgsResolver(m.mapf)
 	case "count":
 		return m.countf
@@ -53,6 +57,36 @@ func (m mscope) countf(s run.Scope, args []parse.Node) interface{} {
 		return false
 	})
 	return builtin.Number{float64(count)}
+}
+
+func (m mscope) filterExpr(s run.Scope, args []parse.Node) interface{} {
+	if len(args) != 1 {
+		return &run.ErrorStack{Message: "filter: requires condition function"}
+	}
+
+	result := map[interface{}]interface{}{}
+	r := &run.Runner{}
+	var err error
+	m.s.ForEachKeys(func(key interface{}) bool {
+		v := m.s.Get(key)
+		params := []map[interface{}]interface{}{{"key": key, "value": Wrap(v)}}
+		switch check := r.Run(run.NewScope(params, s), args[0]).(type) {
+		case bool:
+			if check {
+				result[key] = v
+			}
+			return false
+		case error:
+			err = check
+			return true
+		}
+		err = &run.ErrorStack{Message: "filter: function returned non-boolean"}
+		return true
+	})
+	if err != nil {
+		return err
+	}
+	return Wrap(result)
 }
 
 func (m mscope) filterf(args []interface{}) interface{} {
@@ -81,6 +115,22 @@ func (m mscope) filterf(args []interface{}) interface{} {
 	if err != nil {
 		return err
 	}
+	return Wrap(result)
+}
+
+func (m mscope) mapExpr(s run.Scope, args []parse.Node) interface{} {
+	if len(args) != 1 {
+		return &run.ErrorStack{Message: "map: requires 1 arg"}
+	}
+
+	result := map[interface{}]interface{}{}
+	r := &run.Runner{}
+	m.s.ForEachKeys(func(key interface{}) bool {
+		v := m.s.Get(key)
+		params := []map[interface{}]interface{}{{"key": key, "value": Wrap(v)}}
+		result[key] = r.Run(run.NewScope(params, s), args[0])
+		return false
+	})
 	return Wrap(result)
 }
 

@@ -63,15 +63,15 @@ entites:
 Lists also support `filter` and `map` functions:
 
 ```
-   data:list(1, 2, 3).filter(fun(index, value, index < 2 || value > 2))
-   data:list(1, 2, 3).map(fun(index, value, value*2))
+   data:list(1, 2, 3).filter(index < 2 || value > 2)
+   data:list(1, 2, 3).map(value*2)
 ```
 
 The `data:map` functions provides access to `filter` and `map` on top
 of the regular map expression:
 
 ```
-   data:map{x = 42}.filter(fun(index, value, index == string x))
+   data:map{x = 42}.filter(key == string x || value == 42)
 ```
 
 Other functions include `code:import(url)` to fetch and execute code
