@@ -24,7 +24,7 @@
 //
 //    {f = fun(x, y, x+y), z = f(2, 3)}.z
 //
-// There is a playground interpreter to test code (with examples):
+// There is a playground interpreter to test code (with more examples):
 //   https://funnelorg.github.io/playground/
 package funnel
 

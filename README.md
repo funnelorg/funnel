@@ -15,6 +15,7 @@ Core features of the language:
    - data:list and data:map provide ability to do filter/map
    - general type system not yet implemented
    - easy to add custom functions
+   - ability to import code
 
 ## Playground
 
@@ -72,6 +73,9 @@ of the regular map expression:
 ```
    data:map{x = 42}.filter(fun(index, value, index == string x))
 ```
+
+Other functions include `code:import(url)` to fetch and execute code
+at url.
 
 ## Vision
 
