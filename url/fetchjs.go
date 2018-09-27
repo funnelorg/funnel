@@ -17,5 +17,5 @@ func (u URL) Fetch(fmt string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return req.Response.Interface()
+	return req.Response.Interface(), nil
 }
