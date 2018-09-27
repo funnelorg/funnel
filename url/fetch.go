@@ -8,20 +8,19 @@ package url
 
 import (
 	"encoding/json"
-	"errors"
-	"github.com/funnelorg/funnel/data"
-	"github.com/funnelorg/funnel/parse"
 	"github.com/funnelorg/funnel/run"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
 
-func (u URL) json(s run.Scope, args []parse.Node) interface{} {
+// Fetch the URL contents
+func (u URL) Fetch(fmt string) (interface{}, error) {
 	client := &http.Client{}
 	client.Timeout = time.Second * 10
 	resp, err := client.Get(string(u))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() {
 		err := resp.Body.Close()
@@ -29,13 +28,18 @@ func (u URL) json(s run.Scope, args []parse.Node) interface{} {
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		return errors.New(resp.Status)
+		return nil, &run.ErrorStack{Message: resp.Status}
+	}
+
+	if fmt == Text {
+		body, err := ioutil.ReadAll(resp.Body)
+		return string(body), err
 	}
 
 	var result interface{}
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return data.Wrap(result)
+	return result, nil
 }

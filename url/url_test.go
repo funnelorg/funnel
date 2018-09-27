@@ -23,11 +23,13 @@ var cases = map[string]interface{}{
 	urlCall:                url.URL(jsonURL),
 	"url(" + urlCall + ")": url.URL(jsonURL),
 	urlCall + ".json()":    data,
+	urlCall + ".text()":    `{"hello":"world"}`,
 	urlCall + ".boo":       "no such key at file:55",
 	"url(1++2)":            "missing term at file:6",
 
 	"url(builtin:string 'http://google.com').json()":      "invalid character '<' looking for beginning of value",
-	"url(builtin:string 'http://google.com/boop').json()": "404 Not Found",
+	"url(builtin:string 'http://google.com/boop').json()": "404 Not Found at file:49",
+	"url(builtin:string 'http://google.com/boop').text()": "404 Not Found at file:49",
 	`url(builtin:string "http:// /q").json()`:             `parse http:// /q: invalid character " " in host name`,
 }
 

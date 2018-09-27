@@ -5,7 +5,11 @@
 // Package url implements some helpful url functions
 package url
 
-import "github.com/funnelorg/funnel/run"
+import (
+	"github.com/funnelorg/funnel/data"
+	"github.com/funnelorg/funnel/parse"
+	"github.com/funnelorg/funnel/run"
+)
 
 // Scope returns a new scope with the default url function
 func Scope(base run.Scope) run.Scope {
@@ -36,8 +40,33 @@ type URL string
 
 // Get returns the "methods" of URL
 func (u URL) Get(key interface{}) interface{} {
-	if key != "json" {
-		return &run.ErrorStack{Message: "no such key"}
+	switch key {
+	case "json":
+		return u.json
+	case "text":
+		return u.text
 	}
-	return u.json
+	return &run.ErrorStack{Message: "no such key"}
 }
+
+func (u URL) json(s run.Scope, args []parse.Node) interface{} {
+	x, err := u.Fetch(JSON)
+	if err != nil {
+		return err
+	}
+	return data.Wrap(x)
+}
+
+func (u URL) text(s run.Scope, args []parse.Node) interface{} {
+	x, err := u.Fetch(Text)
+	if err != nil {
+		return err
+	}
+	return x
+}
+
+// Format parameter values for Fetch()
+const (
+	JSON = "json"
+	Text = "text"
+)
