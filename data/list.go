@@ -21,10 +21,14 @@ func (t list) Get(key interface{}) interface{} {
 	switch key {
 	case "item":
 		return run.ArgsResolver(t.itemf)
-	case "filter":
+	case "filterf":
 		return run.ArgsResolver(t.filterf)
-	case "map":
+	case "filter":
+		return t.filterExpr
+	case "mapf":
 		return run.ArgsResolver(t.mapf)
+	case "map":
+		return t.mapExpr
 	case "slice":
 		return run.ArgsResolver(t.slicef)
 	case "count":
@@ -135,6 +139,30 @@ func (t list) filterf(args []interface{}) interface{} {
 	return list(result)
 }
 
+func (t list) filterExpr(s run.Scope, args []parse.Node) interface{} {
+	if len(args) != 1 {
+		return &run.ErrorStack{Message: "filter: requires condition function"}
+	}
+
+	result := []interface{}(nil)
+	r := &run.Runner{}
+	for kk, elt := range t {
+		key := builtin.Number{float64(kk)}
+		params := []map[interface{}]interface{}{{"index": key, "value": Wrap(elt)}}
+		switch check := r.Run(run.NewScope(params, s), args[0]).(type) {
+		case bool:
+			if check {
+				result = append(result, elt)
+			}
+		case error:
+			return check
+		default:
+			return &run.ErrorStack{Message: "filter: function returned non boolean"}
+		}
+	}
+	return list(result)
+}
+
 func (t list) mapf(args []interface{}) interface{} {
 	if len(args) != 1 {
 		return &run.ErrorStack{Message: "map: requires one arg"}
@@ -144,6 +172,21 @@ func (t list) mapf(args []interface{}) interface{} {
 	for kk, elt := range t {
 		params := []interface{}{builtin.Number{float64(kk)}, Wrap(elt)}
 		result = append(result, invoke("map", args[0], params))
+	}
+	return list(result)
+}
+
+func (t list) mapExpr(s run.Scope, args []parse.Node) interface{} {
+	if len(args) != 1 {
+		return &run.ErrorStack{Message: "map: requires one arg"}
+	}
+
+	result := []interface{}(nil)
+	r := &run.Runner{}
+	for kk, elt := range t {
+		key := builtin.Number{float64(kk)}
+		params := []map[interface{}]interface{}{{"index": key, "value": Wrap(elt)}}
+		result = append(result, r.Run(run.NewScope(params, s), args[0]))
 	}
 	return list(result)
 }

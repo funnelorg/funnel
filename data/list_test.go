@@ -42,25 +42,35 @@ var cases = map[string]interface{}{
 	"data:list(1).splice(2,1,1)":     "splice: out of bounds at file:21",
 	"data:list(1).splice(0,1,1)":     "splice: arg 3 must be a list at file:21",
 
+	// list filterf
+	"data:list(1).filterf()":                "filter: requires condition function at file:20",
+	"data:list(1).filterf(fun(i,v, v < 5))": "[{1}]",
+	"data:list(1).filterf(1)":               "filter: arg is not a function at file:21",
+	"data:list(1).filterf(fun(i,v,v))":      "filter: function returned non boolean at file:26",
+	"data:list(1).filterf(fun(i,v,v ++ v))": "missing term at file:32",
+
 	// list filter
-	"data:list(1).filter()":                "filter: requires condition function at file:19",
-	"data:list(1).filter(fun(i,v, v < 5))": "[{1}]",
-	"data:list(1).filter(1)":               "filter: arg is not a function at file:20",
-	"data:list(1).filter(fun(i,v,v))":      "filter: function returned non boolean at file:25",
-	"data:list(1).filter(fun(i,v,v ++ v))": "missing term at file:31",
+	"data:list(1).filter()":               "filter: requires condition function at file:19",
+	"data:list(1).filter(index >= 0)":     "[{1}]",
+	"data:list(1).filter(value)":          "filter: function returned non boolean at file:20",
+	"data:list(1).filter(value ++ value)": "missing term at file:27",
+
+	// list mapf
+	"data:list(1).mapf()":               "map: requires one arg at file:17",
+	"data:list(1).mapf(fun(i,v,v+1))":   data.List([]interface{}{builtin.Number{2}}),
+	"data:list(1).mapf(builtin:number)": "[builtin:number: must have 1 arg]",
 
 	// list map
-	"data:list(1).map()":               "map: requires one arg at file:16",
-	"data:list(1).map(fun(i,v,v+1))":   data.List([]interface{}{builtin.Number{2}}),
-	"data:list(1).map(builtin:number)": "[builtin:number: must have 1 arg]",
+	"data:list(1).map()":        "map: requires one arg at file:16",
+	"data:list(1).map(value+1)": data.List([]interface{}{builtin.Number{2}}),
 
 	// unknown field
 	"data:list(1).wat":       "unknown field: wat at file:12",
 	"data:list(1).({x = 2})": "unknown field at file:12",
 
 	// special function types
-	"data:list(1).map(raw)":      "[raw]",
-	"data:list(1).map(callable)": "[callable]",
+	"data:list(1).mapf(raw)":      "[raw]",
+	"data:list(1).mapf(callable)": "[callable]",
 }
 
 func TestList(t *testing.T) {
