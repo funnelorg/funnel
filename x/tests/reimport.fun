@@ -1,1 +1,1 @@
-code:import(string sample.fun)
+code:import(string "sample.fun")
