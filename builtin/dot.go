@@ -24,14 +24,34 @@ func dot(s run.Scope, args []parse.Node) interface{} {
 			return err
 		}
 
-		switch sx := result.(type) {
-		case run.Scope:
-			result = sx.Get(key)
-		case error:
-			return sx
-		default:
-			return &run.ErrorStack{Message: "cannot use dot with non-map"}
-		}
+		result = getFromScope(s, result, key)
 	}
 	return result
+}
+
+func getFromScope(base run.Scope, s interface{}, key interface{}) interface{} {
+	if str, ok := key.(string); ok && str != "" {
+		if str[0] == '#' {
+			key = str[1:]
+		} else {
+			switch c := base.Get("@" + str).(type) {
+			case func(args []interface{}) interface{}:
+				return c([]interface{}{s})
+			case canCallResolved:
+				return c.CallResolved([]interface{}{s})
+			}
+		}
+	}
+
+	switch sx := s.(type) {
+	case run.Scope:
+		return sx.Get(key)
+	case error:
+		return sx
+	}
+	return &run.ErrorStack{Message: "cannot use dot with non-map"}
+}
+
+type canCallResolved interface {
+	CallResolved(args []interface{}) interface{}
 }

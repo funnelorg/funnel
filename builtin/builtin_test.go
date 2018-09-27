@@ -93,6 +93,10 @@ var cases = map[string]interface{}{
 	"fun(x, x+2)(2)": builtin.Number{4},
 	"fun(x+2,x)":     "fun: invalid param name at file:5",
 
+	// dot + fun
+	"{@append = fun(x, x.#append + 1), z = {append = 2}.append}.z": builtin.Number{3},
+	"{@append = qqq, z = (2).append}.z":                            "blimey",
+
 	// other
 	"3*2 + 2*5": builtin.Number{16},
 	"3 - 5*2":   builtin.Number{-7},
@@ -101,7 +105,12 @@ var cases = map[string]interface{}{
 
 func TestBuiltin(t *testing.T) {
 	r := &run.Runner{}
-	s := builtin.Scope
+	mm := []map[interface{}]interface{}{{
+		"qqq": func(args []interface{}) interface{} {
+			return "blimey"
+		},
+	}}
+	s := run.NewScope(mm, builtin.Scope)
 
 	for code, expected := range cases {
 		t.Run(code, func(t *testing.T) {
