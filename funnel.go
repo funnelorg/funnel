@@ -26,6 +26,14 @@
 //
 // There is a playground interpreter to test code (with more examples):
 //   https://funnelorg.github.io/playground/
+//
+// A REPL is available at github.com/funnelorg/funnel/cmd/funnel:
+//
+//    go get github.com/funnelorg/funnel/cmd/funnel
+//    # try: funnel -eval 1+2
+//    # try: funnel -run <file>
+//    # try: funnel
+//
 package funnel
 
 import (

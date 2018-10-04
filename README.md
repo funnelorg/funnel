@@ -22,6 +22,15 @@ Core features of the language:
 See the language in action
 [here](https://funnelorg.github.io/playground/)
 
+## REPL
+
+```sh
+go get github.com/funnelorg/funnel/cmd/funnel
+# try: funnel -eval 1+2
+# try: funnel -run <file>
+# try: funnel
+```
+
 ## Introduction
 
 Funnel is a an experimental simple functional language.
