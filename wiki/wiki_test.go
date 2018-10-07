@@ -18,7 +18,7 @@ var cases = map[string]interface{}{
 	"wiki:table(1 ++ 2)":             "missing term at file:14",
 	"wiki:table(1)":                  "wiki:tables: not a string at file:11",
 
-	"wiki:table(string \"<>\")":                            "Parse failure: text at file:18",
+	"wiki:table(string \"<>\")": "Parse failure: text at file:18",
 
 	"wiki:table(string \"List of prime numbers\").count()":                 "{50}",
 	`wiki:table(string "Countries of the United Kingdom").map(value.Name)`: `[England Northern Ireland Scotland Wales United Kingdom]`,
