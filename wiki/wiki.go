@@ -39,7 +39,7 @@ func tablesf(args []interface{}) interface{} {
 
 func wikiTables(name string) interface{} {
 	prefix := "https://en.wikipedia.org/w/api.php?action=parse&format=json&page="
-	u := url.URL(prefix + escape([]byte(name)))
+	u := url.URL(prefix + escape([]byte(name)) + "&origin=*")
 
 	json, err := u.Fetch("json")
 	if err != nil {
