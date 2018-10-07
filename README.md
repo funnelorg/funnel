@@ -13,6 +13,7 @@ Core features of the language:
    - Map expression to support complicated expression: `{x = 23, y = x+2}`
    - Define closures with `fun(arg1, arg2,.. expression)` syntax
    - data:list and data:map provide ability to do filter/map
+   - wiki:table support
    - general type system not yet implemented
    - easy to add custom functions
    - ability to import code
@@ -84,7 +85,8 @@ of the regular map expression:
 ```
 
 Other functions include `code:import(url)` to fetch and execute code
-at url.
+at url and `wiki:table(string "Countries of the United Kingdom")` to
+get a table from wikipedia
 
 ## Vision
 

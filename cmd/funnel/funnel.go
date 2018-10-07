@@ -15,6 +15,7 @@ import (
 	"github.com/funnelorg/funnel/math"
 	"github.com/funnelorg/funnel/run"
 	"github.com/funnelorg/funnel/url"
+	"github.com/funnelorg/funnel/wiki"
 	"io/ioutil"
 	"log"
 	"os"
@@ -31,7 +32,7 @@ func main() {
 		log.Fatalf("%s [-run <file> | -eval <expr>]", os.Args[0])
 	}
 
-	scope := code.Scope(data.Scope(url.Scope(math.Scope(builtin.Scope))))
+	scope := wiki.Scope(code.Scope(data.Scope(url.Scope(math.Scope(builtin.Scope)))))
 	if *expr != "" {
 		fmt.Println(funnel.Eval(scope, "funnnel:eval", *expr))
 		return
