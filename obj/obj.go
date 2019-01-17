@@ -130,3 +130,22 @@ func (d *deferred) eval(caller O) O {
 	}
 	return d.cached
 }
+
+// Curry takes a set args and passes it to all invocations. This does
+// not affect any methods - the currying is not transitive.
+func Curry(o O, args ...O) O {
+	return curry{o, args}
+}
+
+type curry struct {
+	o    O
+	args []O
+}
+
+func (c curry) Invoke(caller O, args ...O) O {
+	return c.o.Invoke(caller, append(c.args, args...)...)
+}
+
+func (c curry) Get(caller O, name string) O {
+	return c.o.Get(caller, name)
+}
