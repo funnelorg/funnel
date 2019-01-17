@@ -101,3 +101,32 @@ func (s S) Invoke(caller O, args ...O) O {
 func (s S) Get(caller O, name string) O {
 	return Error(caller, "cannot access field "+name+" of <string>")
 }
+
+// Deferred return an object which when accessed, calculates the value
+// by calling the provided function.
+func Deferred(fn func(caller O) O) O {
+	return &deferred{nil, fn}
+}
+
+type deferred struct {
+	cached O
+	fn     func(caller O) O
+}
+
+func (d *deferred) Invoke(caller O, args ...O) O {
+	return d.eval(caller).Invoke(caller, args...)
+}
+
+func (d *deferred) Get(caller O, name string) O {
+	return d.eval(caller).Get(caller, name)
+}
+
+func (d *deferred) eval(caller O) O {
+	if d.cached == nil {
+		d.cached = d.fn(caller)
+	}
+	if d.cached == nil {
+		d.cached = Nil()
+	}
+	return d.cached
+}
