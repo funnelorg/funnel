@@ -83,12 +83,28 @@ func ExampleDeferred() {
 	// 3: <nil> cannot be invoked
 }
 
+func ExampleCurry() {
+	caller := obj.S("caller")
+	o := obj.Curry(callable{}, obj.S("arg1"))
+
+	fmt.Println("1:", o.Invoke(caller, obj.S("arg2")))
+	fmt.Println("2:", o.Get(caller, "hello"))
+
+	// Output:
+	// 1: called with arg1 arg2
+	// 2: hello
+}
+
 type callable struct{}
 
 func (c callable) Invoke(caller obj.O, args ...obj.O) obj.O {
-	return obj.S("called with " + string(args[0].(obj.S)))
+	str := "called with"
+	for _, arg := range args {
+		str += " " + string(arg.(obj.S))
+	}
+	return obj.S(str)
 }
 
 func (c callable) Get(caller obj.O, name string) obj.O {
-	panic("not expected")
+	return obj.S(name)
 }
