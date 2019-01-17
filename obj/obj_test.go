@@ -66,6 +66,23 @@ func ExampleTuple() {
 	// 4: tuple does not have field boo
 }
 
+func ExampleDeferred() {
+	caller := obj.S("caller")
+	tuple := obj.Tuple(map[string]obj.O{"()": callable{}, "hello": obj.S("world")})
+	lazy := obj.Deferred(func(c obj.O) obj.O { return tuple })
+
+	fmt.Println("1:", lazy.Invoke(caller, obj.S("args")))
+	fmt.Println("2:", lazy.Get(caller, "hello"))
+
+	lazynil := obj.Deferred(func(c obj.O) obj.O { return nil })
+	fmt.Println("3:", lazynil.Invoke(caller).Get(caller, "stack"))
+
+	// Output:
+	// 1: called with args
+	// 2: world
+	// 3: <nil> cannot be invoked
+}
+
 type callable struct{}
 
 func (c callable) Invoke(caller obj.O, args ...obj.O) obj.O {
